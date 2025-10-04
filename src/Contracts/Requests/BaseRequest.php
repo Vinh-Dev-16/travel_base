@@ -65,22 +65,33 @@ class BaseRequest extends Request
     
     /**
      * Get input data from both request body and query parameters
+     * @param string|null $key
+     * @param mixed $default
+     * @return mixed
      */
     public function input($key = null, $default = null)
     {
-        if ($key === null) {
-            return array_merge(parent::input(), $this->query());
-        }
-        
-        return parent::input($key) ?? $this->query($key) ?? $default;
+        return parent::input($key, $default);
     }
     
     /**
      * Get query parameters
+     * @param string|null $key
+     * @param mixed $default
+     * @return mixed
      */
     public function query($key = null, $default = null)
     {
         return parent::query($key, $default);
+    }
+    
+    /**
+     * Get all input data including query parameters
+     * @return array
+     */
+    public function all($keys = null): array
+    {
+        return parent::all($keys);
     }
     
     protected function failedValidation(Validator $validator)
