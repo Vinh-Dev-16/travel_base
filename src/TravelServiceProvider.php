@@ -3,6 +3,7 @@
 namespace Vinhdev\Travel;
 
 use Illuminate\Support\ServiceProvider;
+use Vinhdev\Travel\Middleware\ValidateBaseRequest;
 
 class TravelServiceProvider extends ServiceProvider
 {
@@ -29,5 +30,14 @@ class TravelServiceProvider extends ServiceProvider
                 __DIR__.'/../config/travel.php' => config_path('travel.php'),
             ], 'travel-config');
         }
+
+        // Lấy router từ container thay vì inject
+        $router = $this->app->make('router');
+
+        $router->aliasMiddleware('validate.base.request', ValidateBaseRequest::class);
+
+        // Hoặc tự động áp dụng cho tất cả route
+        $router->pushMiddlewareToGroup('web', ValidateBaseRequest::class);
+        $router->pushMiddlewareToGroup('api', ValidateBaseRequest::class);
     }
 }

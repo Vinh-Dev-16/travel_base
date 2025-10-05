@@ -2,7 +2,6 @@
 
 namespace Vinhdev\Travel\Contracts\Requests;
 
-
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -19,81 +18,114 @@ use Vinhdev\Travel\Contracts\DTO\UserInformationDTO;
 class BaseRequest extends Request
 {
     use GetUserInformationDTOTrait;
-    
+
+    /**
+     * Constructor - automatically merge from global request if no data provided
+     */
+    public function __construct(
+        array $query = [],
+        array $request = [],
+        array $attributes = [],
+        array $cookies = [],
+        array $files = [],
+        array $server = [],
+              $content = null
+    ) {
+        // Nếu không có data truyền vào, lấy từ global request
+        if (empty($query) && empty($request) && empty($attributes) && app()->bound('request')) {
+            $globalRequest = app('request');
+
+            parent::__construct(
+                $globalRequest->query->all(),
+                $globalRequest->request->all(),
+                $globalRequest->attributes->all(),
+                $globalRequest->cookies->all(),
+                $globalRequest->files->all(),
+                $globalRequest->server->all(),
+                $globalRequest->getContent()
+            );
+
+            // Copy thêm các thuộc tính quan trọng
+            $this->headers = clone $globalRequest->headers;
+            $this->setJson($globalRequest->json());
+
+            if (method_exists($globalRequest, 'getRouteResolver')) {
+                $this->setRouteResolver($globalRequest->getRouteResolver());
+            }
+
+            if (method_exists($globalRequest, 'getUserResolver')) {
+                $this->setUserResolver($globalRequest->getUserResolver());
+            }
+        } else {
+            parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
+        }
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true; // Mặc định cho phép tất cả, có thể override trong class con
+        return true;
     }
-    
+
     /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
     {
-        return []; // Mặc định không có rules, có thể override trong class con
+        return [];
     }
-    
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     */
+    public function attributes(): array
+    {
+        return [];
+    }
+
     /**
      * Validate the request data
      * @throws ValidationException
      */
-    public function validate(): array
+    public function validateRequest(): array
     {
         if (!$this->authorize()) {
             $this->failedAuthorization();
         }
-        
-        $validator = ValidatorFacade::make($this->all(), $this->rules());
-        
+
+        $validator = ValidatorFacade::make(
+            $this->all(),
+            $this->rules(),
+            $this->messages(),
+            $this->attributes()
+        );
+
         if ($validator->fails()) {
             $this->failedValidation($validator);
         }
-        
+
         return $validator->validated();
     }
-    
+
     /**
      * Get validated data
+     * @throws ValidationException
      */
     public function validated(): array
     {
-        return $this->validate();
+        return $this->validateRequest();
     }
-    
-    /**
-     * Get input data from both request body and query parameters
-     * @param string|null $key
-     * @param mixed $default
-     * @return mixed
-     */
-    public function input($key = null, $default = null)
-    {
-        return parent::input($key, $default);
-    }
-    
-    /**
-     * Get query parameters
-     * @param string|null $key
-     * @param mixed $default
-     * @return mixed
-     */
-    public function query($key = null, $default = null)
-    {
-        return parent::query($key, $default);
-    }
-    
-    /**
-     * Get all input data including query parameters
-     * @return array
-     */
-    public function all($keys = null): array
-    {
-        return parent::all($keys);
-    }
-    
+
     protected function failedValidation(Validator $validator)
     {
         $response = new JsonResponse([
@@ -120,7 +152,7 @@ class BaseRequest extends Request
             $dto->setUserId(new ObjectId($user->getId()));
             $dto->setUserName($user->getName());
         }
-        
+
         return $dto;
     }
 }
