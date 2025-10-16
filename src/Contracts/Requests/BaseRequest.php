@@ -73,7 +73,7 @@ abstract class BaseRequest extends Request
      * Determine if the user is authorized to make this request.
      * @throws BindingResolutionException
      */
-    public function authorize(): bool
+    public function authorize()
     {
         return app(Pipeline::class)
             ->send($this->user())
