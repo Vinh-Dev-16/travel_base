@@ -21,9 +21,12 @@ use Vinhdev\Travel\Contracts\DTO\UserInformationDTO;
 abstract class BaseRequest extends Request
 {
     use GetUserInformationDTOTrait;
-    protected Container $container;
+
+
     abstract protected function requiredRole(): string;
+
     abstract protected function requiredPermission(): string;
+
     /**
      * Constructor - automatically merge from global request if no data provided
      */
@@ -72,7 +75,7 @@ abstract class BaseRequest extends Request
      */
     public function authorize(): bool
     {
-        return $this->container->make(Pipeline::class)
+        return app(Pipeline::class)
             ->send($this->user())
             ->through([
                 new CheckRolePipe($this->requiredRole(), $this->get('roles')),
@@ -108,6 +111,7 @@ abstract class BaseRequest extends Request
     /**
      * Validate the request data
      * @throws ValidationException
+     * @throws BindingResolutionException
      */
     public function validateRequest(): array
     {
@@ -132,6 +136,7 @@ abstract class BaseRequest extends Request
     /**
      * Get validated data
      * @throws ValidationException
+     * @throws BindingResolutionException
      */
     public function validated(): array
     {
@@ -159,7 +164,7 @@ abstract class BaseRequest extends Request
     public function getDTO(): GetUserInformationDTOInterface
     {
         $user = Auth::user();
-        $dto = new UserInformationDTO();
+        $dto  = new UserInformationDTO();
         if ($user) {
             $dto->setUserId(new ObjectId($user->getId()));
             $dto->setUserName($user->getName());
