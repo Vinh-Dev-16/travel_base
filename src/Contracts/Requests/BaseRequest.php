@@ -2,10 +2,13 @@
 
 namespace Vinhdev\Travel\Contracts\Requests;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator as ValidatorFacade;
 use Illuminate\Validation\ValidationException;
@@ -15,10 +18,12 @@ use Vinhdev\Travel\Contracts\DTO\GetUserInformationDTOTrait;
 use Vinhdev\Travel\Contracts\DTO\GetUserInformationDTOInterface;
 use Vinhdev\Travel\Contracts\DTO\UserInformationDTO;
 
-class BaseRequest extends Request
+abstract class BaseRequest extends Request
 {
     use GetUserInformationDTOTrait;
-
+    protected Container $container;
+    abstract protected function requiredRole(): string;
+    abstract protected function requiredPermission(): string;
     /**
      * Constructor - automatically merge from global request if no data provided
      */
@@ -63,10 +68,17 @@ class BaseRequest extends Request
 
     /**
      * Determine if the user is authorized to make this request.
+     * @throws BindingResolutionException
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->container->make(Pipeline::class)
+            ->send($this->user())
+            ->through([
+                new CheckRolePipe($this->requiredRole(), $this->get('roles')),
+                new CheckPermissionPipe($this->requiredPermission(), $this->get('permissions')),
+            ])
+            ->thenReturn();
     }
 
     /**
