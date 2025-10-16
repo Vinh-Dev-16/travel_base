@@ -2,7 +2,12 @@
 
 namespace Vinhdev\Travel;
 
+
 use Illuminate\Support\ServiceProvider;
+use Vinhdev\Travel\Contracts\Lib\RedisLib;
+use Vinhdev\Travel\Contracts\Lib\RedisLibContract;
+use Vinhdev\Travel\Contracts\Lib\RedisProvider;
+use Vinhdev\Travel\Contracts\Lib\RedisProviderContract;
 use Vinhdev\Travel\Middleware\ValidateBaseRequest;
 
 class TravelServiceProvider extends ServiceProvider
@@ -17,6 +22,17 @@ class TravelServiceProvider extends ServiceProvider
                 __DIR__.'/../config/travel.php', 'travel'
             );
         }
+
+        $this->app->bind(
+            RedisLibContract::class,
+            RedisLib::class
+        );
+
+        // Redis Provider singleton for per-db instances
+        $this->app->singleton(
+            RedisProviderContract::class,
+            RedisProvider::class
+        );
     }
 
     /**
