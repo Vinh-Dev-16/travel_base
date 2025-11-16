@@ -26,4 +26,14 @@ class PaginateRequest extends BaseRequest
             'keyWord.string' => 'Từ khóa phải là chuỗi',
         ];
     }
+
+    public function requiredRole(): string
+    {
+        return '';
+    }
+
+    public function requiredPermission(): string
+    {
+        return '';
+    }
 }
