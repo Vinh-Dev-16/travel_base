@@ -6,7 +6,7 @@ use Illuminate\Redis\Connections\Connection as RedisConnection;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
-class RedisLib
+class RedisLib implements RedisLibContract
 {
     protected RedisConnection $redis;
     protected int $currentDb = 0;
@@ -41,7 +41,7 @@ class RedisLib
         };
     }
 
-    public function set($key, $value, $expiration = null)
+    public function set($key, $value, $expiration = null): bool
     {
         if ($expiration) {
             return $this->redis->setex($key, $expiration, $value);
@@ -54,12 +54,12 @@ class RedisLib
         return $this->redis->get($key);
     }
 
-    public function delete($key)
+    public function delete($key): bool
     {
         return $this->redis->del($key);
     }
 
-    public function enqueue($queue, $value)
+    public function enqueue($queue, $value): int
     {
         return $this->redis->rpush($queue, $value);
     }
@@ -69,7 +69,7 @@ class RedisLib
         return $this->redis->lpop($queue);
     }
 
-    public function addToListStart(string $queue, $value)
+    public function addToListStart(string $queue, $value): int
     {
         return $this->redis->lpush($queue, $value);
     }
@@ -94,7 +94,7 @@ class RedisLib
     }
 
 
-    public function exists($key)
+    public function exists($key): bool
     {
         return $this->redis->exists($key);
     }
