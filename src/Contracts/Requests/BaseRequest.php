@@ -108,6 +108,21 @@ abstract class BaseRequest extends Request
         return [];
     }
 
+    protected function prepareForValidation(): void
+    {
+        // Override in child classes if needed
+    }
+
+    /**
+     * Get the data to be validated from the request.
+     * Override this method to merge route parameters or modify validation data
+     */
+    public function validationData(): array
+    {
+        return $this->all();
+    }
+
+
     /**
      * Validate the request data
      * @throws ValidationException
@@ -119,8 +134,10 @@ abstract class BaseRequest extends Request
             $this->failedAuthorization();
         }
 
+        $this->prepareForValidation();
+
         $validator = ValidatorFacade::make(
-            $this->all(),
+            $this->validationData(),
             $this->rules(),
             $this->messages(),
             $this->attributes()
