@@ -27,12 +27,12 @@ class PaginateRequest extends BaseRequest
         ];
     }
 
-    public function requiredRole(): string
+    protected function requiredRole(): string
     {
         return '';
     }
 
-    public function requiredPermission(): string
+    protected function requiredPermission(): string
     {
         return '';
     }
