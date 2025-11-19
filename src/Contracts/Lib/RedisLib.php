@@ -5,6 +5,7 @@ namespace Vinhdev\Travel\Contracts\Lib;
 use Illuminate\Redis\Connections\Connection as RedisConnection;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 class RedisLib implements RedisLibContract
 {
@@ -404,6 +405,19 @@ class RedisLib implements RedisLibContract
         $result = $this->redis->eval($script, 1, $lockKey, $token, $additionalTtl);
 
         return (bool)$result;
+    }
+
+    /**
+     * Thực thi Lua script trên Redis
+     *
+     * @param  string  $script  Lua script cần thực thi
+     * @param  int  $numberOfKeys  Số lượng keys (sẽ được truyền vào KEYS[])
+     * @param  mixed  ...$arguments  Các tham số còn lại (sẽ được truyền vào ARGV[])
+     * @return mixed Kết quả trả về từ Lua script
+     */
+    public function eval(string $script, int $numberOfKeys, ...$arguments): mixed
+    {
+        return $this->redis->eval($script, $numberOfKeys, ...$arguments);
     }
     
     

@@ -36,5 +36,6 @@ interface RedisLibContract
     public function unlock(string $key, string $token): bool;
     public function isLocked(string $key): bool;
     public function extendLock(string $key, string $token, int $additionalTtl): bool;
+    public function eval(string $script, int $numberOfKeys, ...$arguments): mixed;
 
 }
