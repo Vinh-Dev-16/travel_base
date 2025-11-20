@@ -419,6 +419,28 @@ class RedisLib implements RedisLibContract
     {
         return $this->redis->eval($script, $numberOfKeys, ...$arguments);
     }
-    
+
+    /**
+     * Xóa một phần tử khỏi set
+     *
+     * @param  string  $key  Set key
+     * @param  string  $member  Phần tử cần xóa
+     * @return int Số lượng phần tử đã xóa (0 hoặc 1)
+     */
+    public function srem(string $key, string $member): int
+    {
+        return (int)$this->redis->srem($key, $member);
+    }
+
+    /**
+     * Tăng giá trị của key lên 1
+     *
+     * @param  string  $key  Key cần tăng giá trị
+     * @return int Giá trị mới sau khi tăng
+     */
+    public function incr(string $key): int
+    {
+        return (int)$this->redis->incr($key);
+    }
     
 }

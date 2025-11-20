@@ -38,4 +38,10 @@ interface RedisLibContract
     public function extendLock(string $key, string $token, int $additionalTtl): bool;
     public function eval(string $script, int $numberOfKeys, ...$arguments): mixed;
 
+    // Set operations
+    public function srem(string $key, string $member): int;
+
+    // String operations
+    public function incr(string $key): int;
+
 }
