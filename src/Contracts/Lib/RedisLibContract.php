@@ -39,9 +39,10 @@ interface RedisLibContract
     public function eval(string $script, int $numberOfKeys, ...$arguments): mixed;
 
     // Set operations
+    public function sadd(string $key, string ...$members): int;
+    public function smembers(string $key): array;
     public function srem(string $key, string $member): int;
 
     // String operations
     public function incr(string $key): int;
-
 }
