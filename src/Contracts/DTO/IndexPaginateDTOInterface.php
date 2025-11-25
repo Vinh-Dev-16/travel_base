@@ -14,4 +14,6 @@ interface IndexPaginateDTOInterface
     public function setKeyWord(string $keyWord): void;
 
     public function getKeyWord(): string;
+
+    public function isKeyWordExist(): bool;
 }
