@@ -2,7 +2,6 @@
 
 namespace Vinhdev\Travel\Contracts\DTO\SQL;
 
-use MongoDB\BSON\string;
 
 trait GetUserInformationDTOSQLTrait
 {
