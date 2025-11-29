@@ -182,7 +182,7 @@ abstract class BaseRequestSQL extends Request
         $user = Auth::user();
         $dto  = new UserInformationDTOSQL();
         if ($user) {
-            $dto->setUserId($user->getId());
+            $dto->setUserId($user->getUserId());
             $dto->setUserName($user->getName());
         }
 
