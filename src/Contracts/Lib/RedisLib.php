@@ -433,6 +433,29 @@ class RedisLib implements RedisLibContract
     }
 
     /**
+     * Thêm một hoặc nhiều phần tử vào set
+     *
+     * @param  string  $key  Set key
+     * @param  string  ...$members  Các phần tử cần thêm
+     * @return int Số lượng phần tử mới được thêm vào
+     */
+    public function sadd(string $key, string ...$members): int
+    {
+        return (int)$this->redis->sadd($key, ...$members);
+    }
+
+    /**
+     * Lấy tất cả các phần tử trong set
+     *
+     * @param  string  $key  Set key
+     * @return array Mảng các phần tử trong set
+     */
+    public function smembers(string $key): array
+    {
+        return $this->redis->smembers($key);
+    }
+
+    /**
      * Tăng giá trị của key lên 1
      *
      * @param  string  $key  Key cần tăng giá trị
@@ -442,5 +465,4 @@ class RedisLib implements RedisLibContract
     {
         return (int)$this->redis->incr($key);
     }
-    
 }

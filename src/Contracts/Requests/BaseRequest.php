@@ -114,6 +114,14 @@ abstract class BaseRequest extends Request
     }
 
     /**
+     * Handle a passed validation attempt.
+     */
+    protected function passedValidation(): void
+    {
+        // Override in child classes if needed
+    }
+
+    /**
      * Get the data to be validated from the request.
      * Override this method to merge route parameters or modify validation data
      */
@@ -146,6 +154,8 @@ abstract class BaseRequest extends Request
         if ($validator->fails()) {
             $this->failedValidation($validator);
         }
+
+        $this->passedValidation();
 
         return $validator->validated();
     }
